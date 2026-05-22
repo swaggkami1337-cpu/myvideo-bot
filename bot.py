@@ -5,7 +5,7 @@ import os
 import re
 
 # 🔑 НАСТРОЙКИ
-BOT_TOKEN = "8632052271:AAE_dKOJ3Zs3QKTIZYnq7nGWqeuHTzy1f8o"
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
 CHANNEL_ID = -1003620344255  # ID канала
 CHANNEL_LINK = "https://t.me/wkami1"
 
