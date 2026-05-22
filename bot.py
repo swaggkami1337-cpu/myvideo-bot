@@ -113,6 +113,12 @@ def handle_download(call):
 
     choice = call.data
     ydl_opts = {'quiet': True, 'no_warnings': True, 'outtmpl': '%(id)s.%(ext)s', 'extract_flat': False}
+            'cookiefile': 'cookies.txt',  # <-- ДОБАВИТЬ СЮДА
+        'quiet': True,
+        'no_warnings': True,
+        'outtmpl': '%(id)s.%(ext)s',
+        'extract_flat': False
+    }
 
     if choice.startswith("mp4_"):
         if choice == "mp4_nowatermark":
