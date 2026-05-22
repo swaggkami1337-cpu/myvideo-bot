@@ -1,5 +1,4 @@
 import telebot
-import os
 import yt_dlp
 import os
 import re
@@ -35,7 +34,7 @@ def send_sub_prompt(chat_id):
         telebot.types.InlineKeyboardButton("✅ Проверить подписку", callback_data="check_sub")
     )
     bot.send_message(chat_id, 
-        " **Доступ закрыт**\n\n"
+        "**Доступ закрыт**\n\n"
         "Для использования бота необходимо подписаться на канал **@wkami1**.\n"
         "После подписки нажмите кнопку ниже 👇", 
         parse_mode="Markdown", reply_markup=markup)
@@ -94,7 +93,7 @@ def handle_text(message):
             markup.add(
                 telebot.types.InlineKeyboardButton("📹 MP4 480p", callback_data="mp4_480"),
                 telebot.types.InlineKeyboardButton("📹 MP4 720p", callback_data="mp4_720"),
-                telebot.types.InlineKeyboardButton(" MP4 1080p", callback_data="mp4_1080"),
+                telebot.types.InlineKeyboardButton("📹 MP4 1080p", callback_data="mp4_1080"),
                 telebot.types.InlineKeyboardButton("🎵 MP3", callback_data="mp3")
             )
             bot.reply_to(message, "🔗 Ссылка принята! Выбери формат и качество:", reply_markup=markup)
@@ -112,8 +111,8 @@ def handle_download(call):
     bot.edit_message_text("⏳ Обрабатываю запрос...", chat_id=call.message.chat.id, message_id=call.message.message_id)
 
     choice = call.data
-    ydl_opts = {'quiet': True, 'no_warnings': True, 'outtmpl': '%(id)s.%(ext)s', 'extract_flat': False}
-            'cookiefile': 'cookies.txt',  # <-- ДОБАВИТЬ СЮДА
+    ydl_opts = {
+        'cookiefile': 'cookies.txt',
         'quiet': True,
         'no_warnings': True,
         'outtmpl': '%(id)s.%(ext)s',
@@ -138,21 +137,27 @@ def handle_download(call):
             if choice == "mp3" and not filename.endswith('.mp3'):
                 filename = os.path.splitext(filename)[0] + '.mp3'
             
-            if not os.path.exists(filename): raise Exception("Файл не создан")
+            if not os.path.exists(filename): 
+                raise Exception("Файл не создан")
             if os.path.getsize(filename) > 48 * 1024 * 1024:
-                bot.edit_message_text(" Файл >50 МБ. Telegram не позволяет отправить.", chat_id=call.message.chat.id, message_id=call.message.message_id)
+                bot.edit_message_text("❌ Файл >50 МБ. Telegram не позволяет отправить.", 
+                                    chat_id=call.message.chat.id, message_id=call.message.message_id)
                 os.remove(filename)
                 return
 
             if choice.startswith("mp4"):
-                with open(filename, 'rb') as f: bot.send_video(call.message.chat.id, f, caption=f"🎬 {info.get('title', 'Видео')[:100]}")
+                with open(filename, 'rb') as f: 
+                    bot.send_video(call.message.chat.id, f, caption=f"🎬 {info.get('title', 'Видео')[:100]}")
             else:
-                with open(filename, 'rb') as f: bot.send_audio(call.message.chat.id, f, title=info.get('title', 'Аудио')[:100])
+                with open(filename, 'rb') as f: 
+                    bot.send_audio(call.message.chat.id, f, title=info.get('title', 'Аудио')[:100])
             
             os.remove(filename)
-            bot.edit_message_text("✅ Готово! Файл отправлен выше.", chat_id=call.message.chat.id, message_id=call.message.message_id)
+            bot.edit_message_text("✅ Готово! Файл отправлен выше.", 
+                                chat_id=call.message.chat.id, message_id=call.message.message_id)
     except Exception as e:
-        bot.edit_message_text(f"❌ Ошибка: {str(e)}", chat_id=call.message.chat.id, message_id=call.message.message_id)
+        bot.edit_message_text(f"❌ Ошибка: {str(e)}", 
+                            chat_id=call.message.chat.id, message_id=call.message.message_id)
 
 print("🤖 Бот запущен! Подписка на @wkami1 обязательна.")
 bot.infinity_polling()
