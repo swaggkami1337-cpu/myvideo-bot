@@ -5,19 +5,17 @@ import re
 
 # 🔑 НАСТРОЙКИ
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
-CHANNEL_ID = -1003620344255  # ID канала
+CHANNEL_ID = -1003620344255
 CHANNEL_LINK = "https://t.me/wkami1"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 user_links = {}
-subscribed_users = set()  # Кэш (чтобы не спамить API при каждом сообщении)
+subscribed_users = set()
 
 def check_subscription(user_id):
-    """Проверяет подписку через Telegram API"""
     if user_id in subscribed_users:
         return True
     try:
-        # Бот обязан быть админом канала!
         member = bot.get_chat_member(CHANNEL_ID, user_id)
         if member.status in ['creator', 'administrator', 'member']:
             subscribed_users.add(user_id)
@@ -27,7 +25,6 @@ def check_subscription(user_id):
     return False
 
 def send_sub_prompt(chat_id):
-    """Отправляет блокирующий экран с кнопками"""
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         telebot.types.InlineKeyboardButton("📢 Подписаться на канал", url=CHANNEL_LINK),
@@ -66,12 +63,10 @@ def callback_check_sub(call):
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
-    # 1. Жёсткая проверка подписки перед любой обработкой
     if not check_subscription(message.from_user.id):
         send_sub_prompt(message.chat.id)
         return
 
-    # 2. Поиск ссылки
     link_match = re.search(r'https?://\S+', message.text)
     if link_match:
         link = link_match.group()
@@ -86,7 +81,7 @@ def handle_text(message):
             markup.add(
                 telebot.types.InlineKeyboardButton("📹 MP4 (без воды)", callback_data="mp4_nowatermark"),
                 telebot.types.InlineKeyboardButton("📹 MP4 (со звуком)", callback_data="mp4_720"),
-                telebot.types.InlineKeyboardButton("🎵 MP3 (только звук)", callback_data="mp3")
+                telebot.types.InlineKeyboardButton(" MP3 (только звук)", callback_data="mp3")
             )
             bot.reply_to(message, f"📱 {platform.title()} обнаружен! Выбери формат:", reply_markup=markup)
         else:
@@ -104,14 +99,14 @@ def handle_text(message):
 def handle_download(call):
     link = user_links.get(call.message.chat.id)
     if not link:
-        bot.answer_callback_query(call.id, "❌ Сначала отправь ссылку!")
+        bot.answer_callback_query(call.id, " Сначала отправь ссылку!")
         return
 
     bot.answer_callback_query(call.id, "⏳ Загружаю...")
     bot.edit_message_text("⏳ Обрабатываю запрос...", chat_id=call.message.chat.id, message_id=call.message.message_id)
 
     choice = call.data
-        ydl_opts = {
+    ydl_opts = {
         'cookiefile': os.path.abspath('cookies.txt'),
         'quiet': True,
         'no_warnings': True,
@@ -146,7 +141,7 @@ def handle_download(call):
             if not os.path.exists(filename): 
                 raise Exception("Файл не создан")
             if os.path.getsize(filename) > 48 * 1024 * 1024:
-                bot.edit_message_text("❌ Файл >50 МБ. Telegram не позволяет отправить.", 
+                bot.edit_message_text(" Файл >50 МБ. Telegram не позволяет отправить.", 
                                     chat_id=call.message.chat.id, message_id=call.message.message_id)
                 os.remove(filename)
                 return
@@ -162,7 +157,7 @@ def handle_download(call):
             bot.edit_message_text("✅ Готово! Файл отправлен выше.", 
                                 chat_id=call.message.chat.id, message_id=call.message.message_id)
     except Exception as e:
-        bot.edit_message_text(f"❌ Ошибка: {str(e)}", 
+        bot.edit_message_text(f" Ошибка: {str(e)}", 
                             chat_id=call.message.chat.id, message_id=call.message.message_id)
 
 print("🤖 Бот запущен! Подписка на @wkami1 обязательна.")
