@@ -111,20 +111,18 @@ def handle_download(call):
     bot.edit_message_text("⏳ Обрабатываю запрос...", chat_id=call.message.chat.id, message_id=call.message.message_id)
 
     choice = call.data
-    ydl_opts = {
+        ydl_opts = {
         'cookiefile': os.path.abspath('cookies.txt'),
         'quiet': True,
         'no_warnings': True,
         'outtmpl': '%(id)s.%(ext)s',
         'extract_flat': False,
-        # Специальный обход защиты YouTube для серверов
         'extractor_args': {
             'youtube': {
                 'player_client': ['ios', 'web', 'android'],
                 'player_skip': ['webpage'],
             }
         }
-    }
     }
 
     if choice.startswith("mp4_"):
