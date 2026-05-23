@@ -112,7 +112,7 @@ def handle_download(call):
 
     choice = call.data
     ydl_opts = {
-        'cookiefile': os.path.abspath('cookies.txt'),  # ← абсолютный путь, чтобы сервер точно нашёл файл
+        'cookiefile': os.path.abspath('cookies.txt'),
         'quiet': True,
         'no_warnings': True,
         'outtmpl': '%(id)s.%(ext)s',
