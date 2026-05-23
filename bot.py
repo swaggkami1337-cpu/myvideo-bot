@@ -112,11 +112,19 @@ def handle_download(call):
 
     choice = call.data
     ydl_opts = {
-        'cookiefile': 'cookies.txt',
+        'cookiefile': os.path.abspath('cookies.txt'),  # ← абсолютный путь, чтобы сервер точно нашёл файл
         'quiet': True,
         'no_warnings': True,
         'outtmpl': '%(id)s.%(ext)s',
-        'extract_flat': False
+        'extract_flat': False,
+        # Специальный обход защиты YouTube для серверов
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['ios', 'web', 'android'],
+                'player_skip': ['webpage'],
+            }
+        }
+    }
     }
 
     if choice.startswith("mp4_"):
